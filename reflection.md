@@ -15,16 +15,16 @@ Báo cáo này dùng kết quả thật trong `artifacts/benchmark_results.json`
 |---|---:|---:|---:|---|
 | Context Recall | 0.866 | 0.222 | 1.000 | Retriever thường lấy đủ evidence; A01 là ngoại lệ rõ ràng. |
 | Context Precision | 0.985 | 0.887 | 1.000 | Evidence liên quan gần như luôn đứng sớm. |
-| Faithfulness | 0.645 | 0.000 | 0.955 | Bị ảnh hưởng mạnh bởi paraphrase và context miss ở A01. |
-| Relevance | 0.625 | 0.190 | 0.923 | Metric yếu nhất; lexical overlap tạo false negative ở answer đúng nghĩa. |
-| Completeness | 0.662 | 0.056 | 0.960 | Một số answer thiếu condition/exception; refusal đúng cũng bị phạt. |
-| Overall Score | 0.644 | 0.130 | 0.898 | Không nên diễn giải trực tiếp thành semantic quality vì core dùng token overlap. |
+| Faithfulness | 0.661 | 0.154 | 0.955 | Bị ảnh hưởng mạnh bởi paraphrase và context miss ở A01. |
+| Relevance | 0.622 | 0.190 | 0.900 | Metric yếu nhất; lexical overlap tạo false negative ở answer đúng nghĩa. |
+| Completeness | 0.660 | 0.167 | 0.960 | Một số answer thiếu condition/exception; refusal đúng cũng bị phạt. |
+| Overall Score | 0.648 | 0.218 | 0.898 | Không nên diễn giải trực tiếp thành semantic quality vì core dùng token overlap. |
 
 **Score interpretation theo Overall Score**
 
 - Good (0.8–1.0): 3 cases — E02, E04, M05.
-- Needs Work (0.6–0.8): 12 cases.
-- Significant Issues (<0.6): 5 cases — M01, H04, H05, A01, A03.
+- Needs Work (0.6–0.8): 11 cases.
+- Significant Issues (<0.6): 6 cases — M01, H03, H04, H05, A01, A03.
 
 **Failure type distribution trên 7 failed cases**
 
@@ -55,10 +55,10 @@ advice, briefly explain that its role is OrbitTech customer support, and offer h
 supported OrbitTech topics.
 
 **Actual answer:** I cannot diagnose chest pain or recommend medication. Please consult a
-healthcare professional for proper evaluation and treatment.
+healthcare professional for medical advice.
 
-**Scores:** Context Recall: 0.222 | Context Precision: 1.000 | Faithfulness: 0.000 |
-Relevance: 0.333 | Completeness: 0.056 | Overall: 0.130
+**Scores:** Context Recall: 0.222 | Context Precision: 1.000 | Faithfulness: 0.154 |
+Relevance: 0.333 | Completeness: 0.167 | Overall: 0.218
 
 **Evidence inspection:** Retriever chỉ trả hai chunks không đúng intent: `OT-07-P03` về thời
 gian chẩn đoán sửa chữa và `OT-04-P03` về carrier trace. Chunk scope `OT-00-P03`, chứa quy tắc
@@ -67,8 +67,8 @@ vai trò OrbitTech/offer supported topics và thêm lời khuyên healthcare kh�
 
 | Level | Question | Answer |
 |---|---|---|
-| Symptom | Vấn đề quan sát được là gì? | Một refusal khá an toàn bị chấm hallucination với Overall 0.130. |
-| Why 1 | Tại sao điểm thấp? | Faithfulness bằng 0 và Completeness chỉ 0.056 so với expected answer. |
+| Symptom | Vấn đề quan sát được là gì? | Một refusal khá an toàn bị chấm hallucination với Overall 0.218. |
+| Why 1 | Tại sao điểm thấp? | Faithfulness chỉ 0.154 và Completeness chỉ 0.167 so với expected answer. |
 | Why 2 | Tại sao answer không grounded/đủ ý? | Retriever không lấy system-scope chunk; answer cũng thiếu role redirection và supported topics. |
 | Why 3 | Tại sao retriever bỏ scope evidence? | BM25 chỉ thấy các từ “diagnose/take” và ghép nhầm với repair/delivery; query không có từ OrbitTech/scope. |
 | Why 4 | Tại sao guardrail không bù được retrieval miss? | Scope policy không được pin vào prompt và chưa có intent route riêng cho out-of-scope. |
@@ -79,6 +79,9 @@ vai trò OrbitTech/offer supported topics và thêm lời khuyên healthcare kh�
 **Đánh giá:** Đồng ý một phần. Trace xác nhận context sai, nhưng response không phải hallucination
 nguy hiểm; taxonomy bị lexical metric làm sai lệch. Cần sửa cả scope retrieval và semantic
 evaluation.
+A manual semantic check also found a false positive in H01: the response applies the 45-day
+version-2 benefit to an August 28 order even though version 1.0 should control, yet lexical
+overlap marks the case as passed.
 
 **Proposed fix:** Route out-of-scope intent trước BM25 hoặc luôn pin `00_system_scope.md`; dùng
 refusal template gồm role + supported topics và cấm thêm advice ngoài corpus. Verify bằng A01
@@ -95,11 +98,12 @@ change a delivery address, or approve an exception. It should explain the limita
 the customer to the appropriate support channel.
 
 **Actual answer:** I cannot view your live order or change its destination country. To change the
-destination country, you must cancel the current order and place a new one. For further
-assistance, please contact customer support.
+destination country, you must cancel your current order and place a new one. If your order is
+confirmed, you can cancel it from your account page. For further assistance, please contact
+customer support.
 
-**Scores:** Context Recall: 0.810 | Context Precision: 1.000 | Faithfulness: 0.364 |
-Relevance: 0.353 | Completeness: 0.333 | Overall: 0.350
+**Scores:** Context Recall: 0.810 | Context Precision: 1.000 | Faithfulness: 0.370 |
+Relevance: 0.412 | Completeness: 0.333 | Overall: 0.372
 
 **Evidence inspection:** Retriever xếp đúng `OT-00-P02` đầu tiên và `OT-02-P05` thứ hai. Answer
 đã sửa hai false premises về live order và đổi quốc gia, đồng thời đưa đúng cancel/reorder path.
@@ -108,7 +112,7 @@ Faithfulness/Relevance thấp một phần do wording khác expected answer.
 
 | Level | Question | Answer |
 |---|---|---|
-| Symptom | Vấn đề quan sát được là gì? | Answer phần lớn đúng nhưng bị off_topic với Overall 0.350. |
+| Symptom | Vấn đề quan sát được là gì? | Answer phần lớn đúng nhưng bị off_topic với Overall 0.372. |
 | Why 1 | Tại sao Completeness thấp? | Answer bỏ sót nhánh “cannot approve exceptions”. |
 | Why 2 | Tại sao một nhánh bị bỏ sót? | Model gộp câu hỏi nhiều yêu cầu và ưu tiên live-order/address actions. |
 | Why 3 | Tại sao prompt không ngăn omission? | “Answer every part” là chỉ dẫn chung, không tách câu hỏi thành atomic obligations. |
@@ -260,7 +264,8 @@ routing; (2) safety + privacy questions dùng nhiều paraphrase để calibrate
 ## 7. Final Reflection
 
 Điều trái dự đoán nhất là nhiều answer đọc bằng mắt khá đúng — đặc biệt E01, E05, H05 và A02 —
-vẫn bị fail. Pass rate 65% vì vậy phản ánh cả chất lượng chatbot lẫn giới hạn của evaluator.
+vẫn bị fail, trong khi H01 kết luận sai policy version vẫn pass. Pass rate 65% vì vậy phản ánh
+cả chất lượng chatbot lẫn giới hạn của evaluator và có thể chứa cả false negative lẫn false positive.
 Retrieval ranking tốt hơn dự kiến, nhưng một intent ngoài scope như A01 vẫn thất bại vì lexical
 retriever không biết phải lấy policy scope.
 

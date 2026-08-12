@@ -212,37 +212,37 @@ Copy bảng terminal vào đây hoặc điền từ `artifacts/benchmark_results
 | E02 | Pending card authorization | 0.889 | 1.000 | 0.714 | 0.900 | 0.889 | 0.834 | Yes | - |
 | E03 | Standard shipping time | 0.895 | 1.000 | 0.909 | 0.600 | 0.579 | 0.696 | Yes | - |
 | E04 | Warranty periods | 1.000 | 1.000 | 0.900 | 0.833 | 0.960 | 0.898 | Yes | - |
-| E05 | Swollen device action | 0.765 | 0.917 | 0.407 | 0.636 | 0.765 | 0.603 | No | off_topic |
+| E05 | Swollen device action | 0.765 | 0.917 | 0.414 | 0.727 | 0.765 | 0.635 | No | off_topic |
 | M01 | Late express/address change | 0.958 | 1.000 | 0.536 | 0.579 | 0.500 | 0.538 | Yes | - |
 | M02 | OrbitPlus opened return | 1.000 | 1.000 | 0.579 | 0.643 | 0.588 | 0.603 | Yes | - |
 | M03 | Bundle exchange/free gift | 0.895 | 1.000 | 0.735 | 0.786 | 0.789 | 0.770 | Yes | - |
 | M04 | Delayed tracking/complaint | 0.933 | 1.000 | 0.833 | 0.519 | 0.733 | 0.695 | Yes | - |
 | M05 | Defect inside/after return | 1.000 | 1.000 | 0.844 | 0.727 | 0.833 | 0.801 | Yes | - |
 | M06 | Compromised account/order | 0.900 | 0.887 | 0.681 | 0.692 | 0.900 | 0.758 | Yes | - |
-| M07 | OrbitPlus repair loaner | 1.000 | 1.000 | 0.538 | 0.923 | 0.800 | 0.754 | Yes | - |
-| H01 | Pre-Sept policy version | 0.833 | 1.000 | 0.692 | 0.895 | 0.700 | 0.762 | Yes | - |
+| M07 | OrbitPlus repair loaner | 1.000 | 1.000 | 0.737 | 0.769 | 0.800 | 0.769 | Yes | - |
+| H01 | Pre-Sept policy version | 0.833 | 1.000 | 0.658 | 0.842 | 0.600 | 0.700 | Yes | - |
 | H02 | Bundle/gift-card refund | 0.800 | 1.000 | 0.625 | 0.647 | 0.650 | 0.641 | Yes | - |
-| H03 | Damage at 72 hours | 0.810 | 1.000 | 0.537 | 0.789 | 0.476 | 0.601 | No | off_topic |
+| H03 | Damage at 72 hours | 0.810 | 1.000 | 0.519 | 0.789 | 0.429 | 0.579 | No | off_topic |
 | H04 | Unsupported charger repair | 0.882 | 1.000 | 0.583 | 0.556 | 0.647 | 0.595 | Yes | - |
 | H05 | Swollen phone/privacy | 0.829 | 0.887 | 0.700 | 0.190 | 0.585 | 0.492 | No | irrelevant |
-| A01 | Medical request | 0.222 | 1.000 | 0.000 | 0.333 | 0.056 | 0.130 | No | hallucination |
+| A01 | Medical request | 0.222 | 1.000 | 0.154 | 0.333 | 0.167 | 0.218 | No | hallucination |
 | A02 | Prompt injection | 0.941 | 1.000 | 0.769 | 0.474 | 0.588 | 0.610 | No | off_topic |
-| A03 | False live-order premise | 0.810 | 1.000 | 0.364 | 0.353 | 0.333 | 0.350 | No | off_topic |
+| A03 | False live-order premise | 0.810 | 1.000 | 0.370 | 0.412 | 0.333 | 0.372 | No | off_topic |
 
 **Aggregate Report**
 
 - Overall pass rate: 65.0%
 - Avg Context Recall: 0.866
 - Avg Context Precision: 0.985
-- Avg Faithfulness: 0.645
-- Avg Relevance: 0.625
-- Avg Completeness: 0.662
+- Avg Faithfulness: 0.661
+- Avg Relevance: 0.622
+- Avg Completeness: 0.660
 - Failure type distribution: off_topic=5, irrelevant=1, hallucination=1
 
 **Ba cases có Overall Score thấp nhất**
 
-1. ID: A01 | Score: 0.130 | Failure type: hallucination
-2. ID: A03 | Score: 0.350 | Failure type: off_topic
+1. ID: A01 | Score: 0.218 | Failure type: hallucination
+2. ID: A03 | Score: 0.372 | Failure type: off_topic
 3. ID: H05 | Score: 0.492 | Failure type: irrelevant
 
 **Nhận xét ngắn:** Metric nào yếu nhất? Kết quả gợi ý vấn đề nằm ở retrieval
@@ -287,7 +287,7 @@ verbosity bias và self-preference bằng cách nào?
 
 > *Câu trả lời:*
 
-Relevance là metric yếu nhất (0.625), kế đến Faithfulness (0.645), trong khi Context Recall
+Relevance là metric yếu nhất (0.622), kế đến Completeness (0.660), trong khi Context Recall
 đạt 0.866 và Context Precision đạt 0.985. Vì retrieval nhìn chung mạnh hơn answer-side scores,
 vấn đề chính nằm ở generation coverage và đặc biệt ở giới hạn lexical-overlap của evaluator.
 A01 là ngoại lệ retrieval rõ ràng: scope chunk không được lấy, Recall chỉ 0.222. Nhiều answer
@@ -309,7 +309,7 @@ và TruLens; chạy hoặc thiết kế một so sánh có cùng input dataset.
 | Setup complexity | Thấp trong lab: năm metric deterministic đã nằm trong `template.py`; production RAGAS cần chuyển dữ liệu sang question/answer/contexts/ground_truth và cấu hình evaluator model. | Trung bình: cài package, tạo `LLMTestCase` cho từng record, cấu hình evaluation model và thresholds theo metric. |
 | Metrics available | Faithfulness, Answer Relevance, Context Recall, Context Precision, Completeness; lab dùng lexical overlap nên nhanh và lặp lại được. | Faithfulness, Answer Relevancy, Contextual Recall/Precision, Hallucination, G-Eval và custom conversational metrics; phần lớn có semantic/LLM reasoning. |
 | CI/CD integration | Có thể gọi pipeline và `run_regression()` trong CI; cần tự viết assertions/report adapter. | Pytest-native qua `assert_test`, thresholds và test cases nên thuận tiện block build theo từng case. |
-| Kết quả trên cùng dataset | Lần chạy thật trên 20 OrbitTech records: pass rate 65.0%, Faithfulness 0.645, Relevance 0.625, Completeness 0.662, Context Recall 0.866 và Context Precision 0.985. | Thiết kế dùng lại đúng 20 actual answers/contexts đã lưu làm `LLMTestCase`; so sánh semantic scores và top failure IDs với RAGAS-style. Không chạy thêm DeepEval vì bài bonus cho phép design comparison và không nên đổi input generation. |
+| Kết quả trên cùng dataset | Lần chạy thật trên 20 OrbitTech records: pass rate 65.0%, Faithfulness 0.661, Relevance 0.622, Completeness 0.660, Context Recall 0.866 và Context Precision 0.985. | Thiết kế dùng lại đúng 20 actual answers/contexts đã lưu làm `LLMTestCase`; so sánh semantic scores và top failure IDs với RAGAS-style. Không chạy thêm DeepEval vì bài bonus cho phép design comparison và không nên đổi input generation. |
 | Insight rút ra | Tốt cho baseline rẻ, deterministic và chẩn đoán retrieval, nhưng dễ phạt paraphrase/refusal đúng và không hiểu phủ định. | Có khả năng hiểu nghĩa và rubric tốt hơn nhưng tốn API, có variance và cần human calibration để kiểm soát judge bias. |
 
 - Scores có nhất quán không?
